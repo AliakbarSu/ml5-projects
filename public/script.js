@@ -1,39 +1,31 @@
-let mobilenet
-let video
-let label = ''
+let img
+let detector
 
 function gotResults(error, results) {
   if (error) {
     console.log('Error thrown', error)
   } else {
-    //console.log(results)
-    label = results[0].label
-    mobilenet.predict(gotResults)
+    console.log(results)
+    results.forEach((res) => {
+      stroke(0, 255, 0)
+      strokeWeight(4)
+      noFill(0)
+      rect(res.x, res.y, res.width, res.height)
+      noStroke()
+      fill(255)
+      textSize(24)
+      text(res.label, res.x + 12, res.y + 24)
+    })
   }
 }
 
-function modelReady() {
-  console.log('model is ready!!')
-  mobilenet.predict(gotResults)
-}
-
-function imageReady() {
-  console.log('Image is ready!!')
-  image(cat, 0, 0, width, height)
+function preload() {
+  img = loadImage('./images/cat.jpg')
+  detector = ml5.objectDetector('cocossd')
 }
 
 function setup() {
-  createCanvas(640, 500)
-
-  video = createCapture(VIDEO)
-  video.hide()
-  background(0)
-  mobilenet = ml5.imageClassifier('MobileNet', video, modelReady)
-}
-
-function draw() {
-  image(video, 0, 0)
-  fill(0)
-  textSize(64)
-  text(label, 10, height - 100)
+  createCanvas(640, 480)
+  image(img, 0, 0)
+  detector.then((rs) => rs.detect(img, gotResults))
 }
