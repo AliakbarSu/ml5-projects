@@ -1,31 +1,38 @@
-let img
+let video
 let detector
+let results = []
 
-function gotResults(error, results) {
+function gotResults(error, res) {
   if (error) {
     console.log('Error thrown', error)
   } else {
-    console.log(results)
-    results.forEach((res) => {
-      stroke(0, 255, 0)
-      strokeWeight(4)
-      noFill(0)
-      rect(res.x, res.y, res.width, res.height)
-      noStroke()
-      fill(255)
-      textSize(24)
-      text(res.label, res.x + 12, res.y + 24)
-    })
+    results = res
   }
+  detector.then((rs) => rs.detect(video, gotResults))
 }
 
 function preload() {
-  img = loadImage('./images/cat.jpg')
   detector = ml5.objectDetector('cocossd')
 }
 
 function setup() {
   createCanvas(640, 480)
-  image(img, 0, 0)
-  detector.then((rs) => rs.detect(img, gotResults))
+  video = createCapture(VIDEO)
+  video.size(640, 480)
+  video.hide()
+  detector.then((rs) => rs.detect(video, gotResults))
+}
+
+function draw() {
+  image(video, 0, 0)
+  results.forEach((res) => {
+    stroke(0, 255, 0)
+    strokeWeight(4)
+    noFill(0)
+    rect(res.x, res.y, res.width, res.height)
+    noStroke()
+    fill(255)
+    textSize(24)
+    text(res.label, res.x + 12, res.y + 24)
+  })
 }
