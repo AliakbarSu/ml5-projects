@@ -1,20 +1,37 @@
 let mobilenet
+let classifier
 let video
 let label = ''
 
-function gotResults(error, results) {
+let leftSide
+let rightSide
+let trainButton
+
+function whileTraining(loss) {
+  if (loss === null) {
+    console.log('training completed')
+    classifier.classify(gotResults)
+  } else {
+    console.log(loss)
+  }
+}
+
+function gotResults(error, result) {
   if (error) {
     console.log('Error thrown', error)
   } else {
-    //console.log(results)
-    label = results[0].label
-    mobilenet.predict(gotResults)
+    //console.log(result)
+    label = result[0].label
+    classifier.classify(gotResults)
   }
 }
 
 function modelReady() {
   console.log('model is ready!!')
-  mobilenet.predict(gotResults)
+}
+
+function videoReady() {
+  console.log('video is ready!!')
 }
 
 function imageReady() {
@@ -28,7 +45,23 @@ function setup() {
   video = createCapture(VIDEO)
   video.hide()
   background(0)
-  mobilenet = ml5.imageClassifier('MobileNet', video, modelReady)
+  mobilenet = ml5.featureExtractor('MobileNet', modelReady)
+  classifier = mobilenet.classification(video, videoReady)
+
+  leftSide = createButton('It is left')
+  leftSide.mousePressed(() => {
+    classifier.addImage('left')
+  })
+
+  rightSide = createButton('It is right')
+  rightSide.mousePressed(() => {
+    classifier.addImage('right')
+  })
+
+  trainButton = createButton('train')
+  trainButton.mousePressed(() => {
+    classifier.train(whileTraining)
+  })
 }
 
 function draw() {
