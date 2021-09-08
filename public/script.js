@@ -34,11 +34,6 @@ function videoReady() {
   console.log('video is ready!!')
 }
 
-function imageReady() {
-  console.log('Image is ready!!')
-  image(cat, 0, 0, width, height)
-}
-
 function setup() {
   createCanvas(640, 500)
 
